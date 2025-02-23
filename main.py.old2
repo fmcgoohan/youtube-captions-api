@@ -1,26 +1,10 @@
-import requests
-
-# Monkey-patch requests.get to add a browser-like User-Agent
-original_get = requests.get
-
-def custom_get(url, **kwargs):
-    headers = kwargs.get("headers", {})
-    headers.setdefault(
-        "User-Agent",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/115.0 Safari/537.36"
-    )
-    kwargs["headers"] = headers
-    return original_get(url, **kwargs)
-
-requests.get = custom_get
-
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import re
 from youtube_transcript_api import YouTubeTranscriptApi
 import logging
 
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
 app = FastAPI()
@@ -47,7 +31,7 @@ def get_transcript(vid_id: str) -> str:
     try:
         transcript = YouTubeTranscriptApi.get_transcript(vid_id, languages=['en'])
         transcript_text = ' '.join([item['text'] for item in transcript])
-        logging.debug(f"Transcript text: {transcript_text[:100]}...")
+        logging.debug(f"Transcript text: {transcript_text[:100]}...")  # Print first 100 chars
         return transcript_text
     except Exception as e:
         logging.exception(f"Error fetching transcript for video id {vid_id}: {e}")
